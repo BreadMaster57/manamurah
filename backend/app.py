@@ -5,6 +5,10 @@ from scrapers import search_all_platforms
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/health')
+def health():
+    return jsonify({"status": "ok"}), 200
+
 @app.route('/api/search')
 def search():
     query = request.args.get('q', '')
