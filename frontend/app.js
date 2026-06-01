@@ -106,7 +106,7 @@ async function performSearch() {
     resultsDiv.innerHTML = '';
     summaryDiv.classList.add('hidden');
 
-    let url = `http://localhost:5000/api/search?q=${encodeURIComponent(query)}`;
+    let url = `https://manamurah-api.onrender.com/api/search?q=${encodeURIComponent(query)}`;
     if (maxPrice && !isNaN(maxPrice) && Number(maxPrice) > 0) {
         url += `&max_price=${encodeURIComponent(maxPrice)}`;
     }
