@@ -1,5 +1,7 @@
-__pycache__/ 
-*.pyc 
+.env
+__pycache__/
+*.pyc
+.DS_Store
 google_shopping_debug.html 
 shopee_debug.html 
 lazada_debug.html 

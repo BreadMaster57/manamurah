@@ -1,8 +1,11 @@
-import requests
-from urllib.parse import quote
+import os
 import random
 import re
+import requests
+from dotenv import load_dotenv
 
+# Load API key from .env file
+load_dotenv()
 
 def clean_price(text):
     """Extract a float from strings like 'RM 29.90' or 'MYR 1,299.00'"""
@@ -13,7 +16,6 @@ def clean_price(text):
         return float(cleaned)
     except ValueError:
         return None
-
 
 def search_google_shopping(query, api_key, max_price=None):
     """
@@ -26,7 +28,7 @@ def search_google_shopping(query, api_key, max_price=None):
         "q": query,
         "gl": "my",
         "hl": "en",
-        "num": 50, 
+        "num": 50,
         "api_key": api_key,
     }
     print(f"[SerpAPI] Searching for '{query}'...")
@@ -52,12 +54,9 @@ def search_google_shopping(query, api_key, max_price=None):
             if not title or not price or not link:
                 continue
 
-            # Apply price cap only if max_price is set
             if max_price is not None and price > max_price:
                 continue
 
-            # Map well-known platforms
-            platform = source
             src_lower = source.lower()
             if "shopee" in src_lower:
                 platform = "Shopee"
@@ -67,8 +66,9 @@ def search_google_shopping(query, api_key, max_price=None):
                 platform = "TikTok Shop"
             elif "zalora" in src_lower:
                 platform = "Zalora"
+            else:
+                platform = source
 
-            # Simulated extra fields
             original_price = round(price * random.uniform(1.05, 2.0), 2)
             discount = int((1 - price / original_price) * 100) if original_price > price else 0
             rating = round(random.uniform(3.5, 5.0), 1)
@@ -93,10 +93,6 @@ def search_google_shopping(query, api_key, max_price=None):
         print(f"[SerpAPI] FAILED: {e} — falling back to demo")
         return _demo_all(query)
 
-
-# ═══════════════════════════════════════════════════════════════════════
-#  DEMO FALLBACK  (keeps the app working even if API is unreachable)
-# ═══════════════════════════════════════════════════════════════════════
 def _demo_all(query):
     """Generate demo results for Shopee, Lazada, and TikTok Shop."""
     results = []
@@ -144,20 +140,17 @@ def _demo_all(query):
         })
     return results
 
-
-# ═══════════════════════════════════════════════════════════════════════
-#  MASTER SEARCH  (called by app.py)
-# ═══════════════════════════════════════════════════════════════════════
 def search_all_platforms(query, max_price=None, sort_order='asc'):
-    # ⚠️ Replace with your real SerpAPI key
-    API_KEY = "26198b02d4849e9c9bfe412308cc4dd9fe99ed5562d4d2af4409176a088bdb14"
+    """Main search function - call this from app.py"""
+    API_KEY = os.getenv('SERPAPI_KEY')
+    if not API_KEY:
+        raise ValueError("SERPAPI_KEY not found. Make sure .env file exists with SERPAPI_KEY=your_key_here")
+    
     results = search_google_shopping(query, API_KEY, max_price=max_price)
 
-    # Handle sorting
     if sort_order == 'asc':
         results.sort(key=lambda x: x['price'])
     elif sort_order == 'desc':
         results.sort(key=lambda x: x['price'], reverse=True)
-    # 'relevance' → keep the order from Google Shopping (no sort)
 
     return results
