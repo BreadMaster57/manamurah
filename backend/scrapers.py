@@ -52,7 +52,6 @@ def search_google_shopping(query, api_key, max_price=None):
             if not title or not price or not link:
                 continue
 
-            # Apply price cap only if max_price is set
             if max_price is not None and price > max_price:
                 continue
 
@@ -94,9 +93,6 @@ def search_google_shopping(query, api_key, max_price=None):
         return _demo_all(query)
 
 
-# ═══════════════════════════════════════════════════════════════════════
-#  DEMO FALLBACK  (keeps the app working even if API is unreachable)
-# ═══════════════════════════════════════════════════════════════════════
 def _demo_all(query):
     """Generate demo results for Shopee, Lazada, and TikTok Shop."""
     results = []
@@ -145,19 +141,14 @@ def _demo_all(query):
     return results
 
 
-# ═══════════════════════════════════════════════════════════════════════
-#  MASTER SEARCH  (called by app.py)
-# ═══════════════════════════════════════════════════════════════════════
 def search_all_platforms(query, max_price=None, sort_order='asc'):
-    # ⚠️ Replace with your real SerpAPI key
     API_KEY = "26198b02d4849e9c9bfe412308cc4dd9fe99ed5562d4d2af4409176a088bdb14"
     results = search_google_shopping(query, API_KEY, max_price=max_price)
 
-    # Handle sorting
     if sort_order == 'asc':
         results.sort(key=lambda x: x['price'])
     elif sort_order == 'desc':
         results.sort(key=lambda x: x['price'], reverse=True)
-    # 'relevance' → keep the order from Google Shopping (no sort)
+    # 'relevance' → keep the order from Google Shopping
 
     return results
